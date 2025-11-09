@@ -24,6 +24,17 @@ async function run() {
     const homeHeroService = client.db('homeHeroService')
     const services = homeHeroService.collection('services')
 
+    app.get('/services', async(req, res) => {
+        const email = req.query.email;
+        const query = {};
+        if(email){
+            query.provider_email = email;
+        }
+        const cursor = services.find(query);
+        const result = await cursor.toArray();
+        res.send(result)
+    })
+
     app.post('/services', async(req, res) => {
         const newServices = req.body;
         const result = await services.insertOne(newServices)
