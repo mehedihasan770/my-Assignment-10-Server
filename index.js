@@ -23,6 +23,7 @@ async function run() {
 
     const homeHeroService = client.db('homeHeroService')
     const services = homeHeroService.collection('services')
+    const bookings = homeHeroService.collection('bookings')
 
     app.get('/services', async(req, res) => {
       console.log('hallo')
@@ -58,11 +59,46 @@ async function run() {
         res.send(result)
     })
 
+    app.put('/services/:id/review', async (req, res) => {
+      const id = req.params.id;
+      const review = req.body;
+      const query = {_id: ObjectId(id)}
+      const pushReview = {
+        $push: {reviews: review}
+      }
+      const result = services.updateOne(query, pushReview)
+      res.send(result)
+    })
+
     app.delete('/services/:id', async(req, res) => {
         const id = req.params.id;
         const query = {_id: new ObjectId(id)};
         const result = await services.deleteOne(query);
         res.send(result)
+    })
+
+    app.get('/bookings', async(req, res) => {
+      const email = req.query.email;
+      const query = {};
+      if(email){
+        query.email = email;
+      }
+      const cursor = bookings.find();
+      const result = await cursor.toArray();
+      res.send(result)
+    })
+
+    app.post('/bookings', async(req, res) => {
+      const newBooking = req.body;
+      const result = await bookings.insertOne(newBooking);
+      res.send(result);
+    })
+
+    app.delete('/bookings/:id', async(req, res) => {
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)};
+      const result = await bookings.deleteOne(query);
+      res.send(result)
     })
 
     await client.db("admin").command({ ping: 1 });
