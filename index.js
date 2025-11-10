@@ -25,6 +25,7 @@ async function run() {
     const services = homeHeroService.collection('services')
 
     app.get('/services', async(req, res) => {
+      console.log('hallo')
         const email = req.query.email;
         const query = {};
         if(email){
@@ -33,6 +34,13 @@ async function run() {
         const cursor = services.find(query);
         const result = await cursor.toArray();
         res.send(result)
+    })
+
+    app.get('/services/:id', async(req, res) => {
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)};
+      const result = await services.findOne(query);
+      res.send(result)
     })
 
     app.post('/services', async(req, res) => {
@@ -50,7 +58,7 @@ async function run() {
         res.send(result)
     })
 
-    app.delete('services/:id', async(req, res) => {
+    app.delete('/services/:id', async(req, res) => {
         const id = req.params.id;
         const query = {_id: new ObjectId(id)};
         const result = await services.deleteOne(query);
