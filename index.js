@@ -26,7 +26,6 @@ async function run() {
     const bookings = homeHeroService.collection('bookings')
 
     app.get('/services', async(req, res) => {
-      console.log('hallo')
         const email = req.query.email;
         const query = {};
         if(email){
@@ -62,12 +61,33 @@ async function run() {
     app.put('/services/:id/review', async (req, res) => {
       const id = req.params.id;
       const review = req.body;
-      const query = {_id: ObjectId(id)}
+      const query = {_id: new ObjectId(id)}
       const pushReview = {
         $push: {reviews: review}
       }
-      const result = services.updateOne(query, pushReview)
+      const result = await services.updateOne(query, pushReview)
       res.send(result)
+    })
+
+    app.get('/service/filter', async(req, res) => {
+      const min = parseFloat(req.query.min);
+      const max = parseFloat(req.query.max);
+      const query = {};
+      if(min && max){
+        query.service_Price = {$gte: min, $lte: max}
+      }
+      const result = await services.find(query).toArray()
+      res.send(result)
+    })
+
+    app.get('/average_top_rating', async (req, res) => {
+      const query = services.aggregate([
+        {$addFields: {avaregRating : {$avg:"$reviews.rating"}}},
+        { $sort: { avaregRating: -1 } },
+        { $limit: 6 }
+      ])
+      const result =await query.toArray()
+      res.send(result);
     })
 
     app.delete('/services/:id', async(req, res) => {
@@ -83,7 +103,7 @@ async function run() {
       if(email){
         query.email = email;
       }
-      const cursor = bookings.find();
+      const cursor = bookings.find(query);
       const result = await cursor.toArray();
       res.send(result)
     })
