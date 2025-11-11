@@ -19,7 +19,7 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-    await client.connect();
+    // await client.connect();
 
     const homeHeroService = client.db('homeHeroService')
     const services = homeHeroService.collection('services')
@@ -121,7 +121,7 @@ async function run() {
       res.send(result)
     })
 
-    await client.db("admin").command({ ping: 1 });
+    // await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally { }
 }
